@@ -2,7 +2,7 @@ package io.jrb.labs.commons.workflow
 
 data class TestContext(
 
-    val workflowName: String,
+    val workflowName: String = "",
     val sum: Int
 
 ) : WorkflowContext<TestContext> {

@@ -1,10 +1,9 @@
 package io.jrb.labs.commons.workflow
 
-@FunctionalInterface
-interface WorkflowStep<C : WorkflowContext<C>> {
+fun interface WorkflowStep<C : WorkflowContext<C>> {
 
     fun stepName(): String {
-        return javaClass.simpleName
+        return javaClass.name
     }
 
     fun apply(context: C): C
