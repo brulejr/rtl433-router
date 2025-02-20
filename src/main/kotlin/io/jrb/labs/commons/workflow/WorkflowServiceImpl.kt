@@ -13,17 +13,31 @@ class WorkflowServiceImpl : WorkflowService {
     }
 
     private fun <C : WorkflowContext<C>> buildWorkflow(definition: WorkflowDefinition<C>): (C) -> C {
+        val flowName = definition.name
         return { initialContext ->
-            definition.steps
-                .map { step -> buildWorkflowStep(definition, step) }
-                .fold(initialContext) { acc, fn -> fn(acc) }
+            log.info("Running workflow $flowName")
+            try {
+                definition.steps
+                    .map { step -> buildWorkflowStep(definition, step) }
+                    .fold(initialContext) { acc, fn -> fn(acc) }
+            } catch(e: WorkflowStepException) {
+                throw e
+            } catch(e: Exception) {
+                throw WorkflowException(flowName, e)
+            }
         }
     }
 
     private fun <C :WorkflowContext<C>> buildWorkflowStep(definition: WorkflowDefinition<C>, step: WorkflowStep<C>): (C) -> C {
+        val flowName = definition.name
+        val stepName = step.stepName()
         return { context ->
-            log.info("Running workflow ${definition.name}, step ${step.stepName()}")
-            step.apply(context)
+            log.info("Running workflow $flowName, step $stepName")
+            try {
+                step.apply(context)
+            } catch(e: Exception) {
+                throw WorkflowStepException(flowName, stepName, e)
+            }
         }
     }
 
