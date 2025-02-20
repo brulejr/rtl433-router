@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "rtl433-router",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
