@@ -6,6 +6,7 @@ class WorkflowServiceImpl : WorkflowService {
 
     private val log by LoggerDelegate()
 
+    @Suppress("UNCHECKED_CAST")
     override fun <C : WorkflowContext<C>> run(definition: WorkflowDefinition<C>, context: C): Outcome<C> {
         val flowName = definition.name
         try {
