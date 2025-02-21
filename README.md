@@ -95,3 +95,4 @@ Libraries
 
 Kotlin Techniques
 - [Sealed Classes Instead of Exceptions in Kotlin](https://phauer.com/2019/sealed-classes-exceptions-kotlin/)
+- [A Beginner‘s Guide to Mastering Kotlin‘s Powerful Fold Function](https://thelinuxcode.com/kotlin-fold-examples/)

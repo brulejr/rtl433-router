@@ -6,6 +6,6 @@ fun interface WorkflowStep<C : WorkflowContext<C>> {
         return javaClass.name.substringAfterLast('.')
     }
 
-    fun apply(context: C): C
+    fun apply(context: C): Outcome<C>
 
 }

@@ -20,10 +20,10 @@ class WorkflowServiceTest : TestUtils {
     @Test
     fun test_NumericWorkflow() {
         val workflow = WorkflowDefinition(randomString(), listOf<WorkflowStep<TestContext>>(
-            WorkflowStep { c -> c.copy(sum = c.sum + 1) },
-            WorkflowStep { c -> c.copy(sum = c.sum * 2) },
-            WorkflowStep { c -> c.copy(sum = c.sum + 10) },
-            WorkflowStep { c -> c.copy(sum = c.sum / 2) }
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum * 2)) },
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 10)) },
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum / 2)) }
         ))
 
         val initialContext = TestContext(sum = 0)
@@ -39,8 +39,8 @@ class WorkflowServiceTest : TestUtils {
     @Test
     fun test_NumericWorkflowWithException() {
         val workflow = WorkflowDefinition(randomString(), listOf<WorkflowStep<TestContext>>(
-            WorkflowStep { c -> c.copy(sum = c.sum + 1) },
-            WorkflowStep { _ -> throw RuntimeException("EXPECTED") }
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
+            WorkflowStep { _ -> Outcome.Error("EXPECTED", RuntimeException("EXPECTED")) }
         ))
 
         val initialContext = TestContext(sum = 0)
@@ -48,9 +48,9 @@ class WorkflowServiceTest : TestUtils {
 
         assertThat(outcome)
             .isInstanceOf(Outcome.Error::class.java)
-            .hasFieldOrPropertyWithValue("message", "An error occurred while processing workflow ${workflow.name} step WorkflowServiceTest\$test_NumericWorkflowWithException\$workflow\$2")
+            .hasFieldOrPropertyWithValue("message", "EXPECTED")
             .extracting("cause")
-            .isInstanceOf(WorkflowStepException::class.java)
+            .isInstanceOf(RuntimeException::class.java)
     }
 
 }
