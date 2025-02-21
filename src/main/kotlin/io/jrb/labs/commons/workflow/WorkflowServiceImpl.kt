@@ -12,8 +12,10 @@ class WorkflowServiceImpl : WorkflowService {
             val updatedContext = context.withWorkflowName(flowName)
             val workflow = buildWorkflow(definition)
             return Outcome.Success(workflow(updatedContext))
-        } catch (e: WorkflowExitException) {
+        } catch (e: WorkflowErrorException) {
             return e.outcome
+        } catch (e: WorkflowFailureException) {
+            return e.outcome as Outcome.Failure<C>
         } catch(e: Exception) {
             return Outcome.Error(e.message ?: "Unexpected workflow error occurred: workflow=$flowName", e)
         }
@@ -28,7 +30,11 @@ class WorkflowServiceImpl : WorkflowService {
                 .fold(initialContext) { acc, fn ->
                     when (val result = fn(acc)) {
                         is Outcome.Success -> result.value
-                        is Outcome.Error -> throw WorkflowExitException(flowName, result)
+                        is Outcome.Failure -> when (result.reason) {
+                            Outcome.FailureReason.DATA_ERROR_CONTINUE -> result.value
+                            Outcome.FailureReason.DATA_ERROR_EXIT -> throw WorkflowFailureException(flowName, result)
+                        }
+                        is Outcome.Error -> throw WorkflowErrorException(flowName, result)
                     }
                 }
         }

@@ -23,4 +23,4 @@
  */
 package io.jrb.labs.commons.service
 
-open class ServiceException(message: String, cause: Throwable?): Exception(message, cause)
+open class ServiceException(message: String, cause: Throwable?): RuntimeException(message, cause)

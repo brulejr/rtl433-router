@@ -7,8 +7,14 @@ open class WorkflowException(workflow: String, cause: Throwable?, message: Strin
     cause = cause
 )
 
-class WorkflowExitException(workflow: String, val outcome: Outcome.Error): WorkflowException(
+class WorkflowErrorException(workflow: String, val outcome: Outcome.Error): WorkflowException(
     workflow = workflow,
-    message = "Exiting workflow $workflow",
+    message = "Exiting workflow $workflow due to error",
+    cause = null
+)
+
+class WorkflowFailureException(workflow: String, val outcome: Outcome.Failure<Any>): WorkflowException(
+    workflow = workflow,
+    message = "Exiting workflow $workflow due to failure",
     cause = null
 )

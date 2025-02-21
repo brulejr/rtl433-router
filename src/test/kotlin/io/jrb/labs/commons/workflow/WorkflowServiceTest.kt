@@ -37,7 +37,7 @@ class WorkflowServiceTest : TestUtils {
     }
 
     @Test
-    fun test_NumericWorkflowWithException() {
+    fun test_NumericWorkflowWithError() {
         val workflow = WorkflowDefinition(randomString(), listOf<WorkflowStep<TestContext>>(
             WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
             WorkflowStep { _ -> Outcome.Error("EXPECTED", RuntimeException("EXPECTED")) }
@@ -51,6 +51,42 @@ class WorkflowServiceTest : TestUtils {
             .hasFieldOrPropertyWithValue("message", "EXPECTED")
             .extracting("cause")
             .isInstanceOf(RuntimeException::class.java)
+    }
+
+    @Test
+    fun test_NumericWorkflowWithDataErrorContinue() {
+        val workflow = WorkflowDefinition(randomString(), listOf<WorkflowStep<TestContext>>(
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
+            WorkflowStep { c -> Outcome.Failure(Outcome.FailureReason.DATA_ERROR_CONTINUE, c) },
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum * 2)) }
+        ))
+
+        val initialContext = TestContext(sum = 10)
+        val outcome = workflowService.run(workflow, initialContext)
+
+        assertThat(outcome)
+            .isInstanceOf(Outcome.Success::class.java)
+            .extracting("value")
+            .hasFieldOrPropertyWithValue("workflowName", workflow.name)
+            .hasFieldOrPropertyWithValue("sum", 22)
+    }
+
+    @Test
+    fun test_NumericWorkflowWithDataErrorExit() {
+        val workflow = WorkflowDefinition(randomString(), listOf<WorkflowStep<TestContext>>(
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
+            WorkflowStep { c -> Outcome.Failure(Outcome.FailureReason.DATA_ERROR_EXIT, c) },
+            WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum * 2)) }
+        ))
+
+        val initialContext = TestContext(sum = 10)
+        val outcome = workflowService.run(workflow, initialContext)
+
+        assertThat(outcome)
+            .isInstanceOf(Outcome.Failure::class.java)
+            .extracting("value")
+            .hasFieldOrPropertyWithValue("workflowName", workflow.name)
+            .hasFieldOrPropertyWithValue("sum", 11)
     }
 
 }
