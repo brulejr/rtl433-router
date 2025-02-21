@@ -6,10 +6,14 @@ class WorkflowServiceImpl : WorkflowService {
 
     private val log by LoggerDelegate()
 
-    override fun <C : WorkflowContext<C>> run(definition: WorkflowDefinition<C>, context: C): C {
-        val updatedContext = context.withWorkflowName(definition.name)
-        val workflow = buildWorkflow(definition)
-        return workflow(updatedContext)
+    override fun <C : WorkflowContext<C>> run(definition: WorkflowDefinition<C>, context: C): Outcome<C> {
+        try {
+            val updatedContext = context.withWorkflowName(definition.name)
+            val workflow = buildWorkflow(definition)
+            return Outcome.Success(workflow(updatedContext))
+        } catch(e: Exception) {
+            return Outcome.Error(e.message ?: "", e)
+        }
     }
 
     private fun <C : WorkflowContext<C>> buildWorkflow(definition: WorkflowDefinition<C>): (C) -> C {

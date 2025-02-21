@@ -3,7 +3,6 @@ package io.jrb.labs.commons.workflow
 import io.jrb.labs.commons.test.TestUtils
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,9 +27,11 @@ class WorkflowServiceTest : TestUtils {
         ))
 
         val initialContext = TestContext(sum = 0)
-        val finalContext = workflowService.run(workflow, initialContext)
+        val outcome = workflowService.run(workflow, initialContext)
 
-        assertThat(finalContext)
+        assertThat(outcome)
+            .isInstanceOf(Outcome.Success::class.java)
+            .extracting("value")
             .hasFieldOrPropertyWithValue("workflowName", workflow.name)
             .hasFieldOrPropertyWithValue("sum", 6)
     }
@@ -43,10 +44,13 @@ class WorkflowServiceTest : TestUtils {
         ))
 
         val initialContext = TestContext(sum = 0)
+        val outcome = workflowService.run(workflow, initialContext)
 
-        assertThatThrownBy { workflowService.run(workflow, initialContext) }
+        assertThat(outcome)
+            .isInstanceOf(Outcome.Error::class.java)
+            .hasFieldOrPropertyWithValue("message", "An error occurred while processing workflow ${workflow.name} step WorkflowServiceTest\$test_NumericWorkflowWithException\$workflow\$2")
+            .extracting("cause")
             .isInstanceOf(WorkflowStepException::class.java)
-            .hasMessage("An error occurred while processing workflow ${workflow.name} step WorkflowServiceTest\$test_NumericWorkflowWithException\$workflow\$2")
     }
 
 }
