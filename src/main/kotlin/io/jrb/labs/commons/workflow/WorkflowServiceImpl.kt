@@ -14,11 +14,11 @@ class WorkflowServiceImpl : WorkflowService {
             val workflow = buildWorkflow(definition)
             return Outcome.Success(workflow(updatedContext))
         } catch (e: WorkflowErrorException) {
-            return e.outcome
+            return e.outcome as Outcome.Error<C>
         } catch (e: WorkflowFailureException) {
             return e.outcome as Outcome.Failure<C>
         } catch(e: Exception) {
-            return Outcome.Error(e.message ?: "Unexpected workflow error occurred: workflow=$flowName", e)
+            return Outcome.Error(context,e.message ?: "Unexpected workflow error occurred: workflow=$flowName", e)
         }
     }
 
@@ -49,7 +49,7 @@ class WorkflowServiceImpl : WorkflowService {
             try {
                 step.apply(context)
             } catch(e: Exception) {
-                Outcome.Error("Unexpected workflow step error: workflow=$flowName, step=$stepName", e)
+                Outcome.Error(context,"Unexpected workflow step error: workflow=$flowName, step=$stepName", e)
             }
         }
     }

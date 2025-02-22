@@ -40,7 +40,7 @@ class WorkflowServiceTest : TestUtils {
     fun test_NumericWorkflowWithError() {
         val workflow = WorkflowDefinition(randomString(), TestContext::class, listOf<WorkflowStep<TestContext>>(
             WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
-            WorkflowStep { _ -> Outcome.Error("EXPECTED", RuntimeException("EXPECTED")) }
+            WorkflowStep { c -> Outcome.Error(c, "EXPECTED", RuntimeException("EXPECTED")) }
         ))
 
         val initialContext = TestContext(sum = 0)
@@ -49,15 +49,22 @@ class WorkflowServiceTest : TestUtils {
         assertThat(outcome)
             .isInstanceOf(Outcome.Error::class.java)
             .hasFieldOrPropertyWithValue("message", "EXPECTED")
+
+        assertThat(outcome)
             .extracting("cause")
             .isInstanceOf(RuntimeException::class.java)
+
+        assertThat(outcome)
+            .extracting("value")
+            .hasFieldOrPropertyWithValue("workflowName", workflow.name)
+            .hasFieldOrPropertyWithValue("sum", 1)
     }
 
     @Test
     fun test_NumericWorkflowWithDataErrorContinue() {
         val workflow = WorkflowDefinition(randomString(), TestContext::class, listOf<WorkflowStep<TestContext>>(
             WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
-            WorkflowStep { c -> Outcome.Failure(Outcome.FailureReason.DATA_ERROR_CONTINUE, c) },
+            WorkflowStep { c -> Outcome.Failure(c, Outcome.FailureReason.DATA_ERROR_CONTINUE) },
             WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum * 2)) }
         ))
 
@@ -75,7 +82,7 @@ class WorkflowServiceTest : TestUtils {
     fun test_NumericWorkflowWithDataErrorExit() {
         val workflow = WorkflowDefinition(randomString(), TestContext::class, listOf<WorkflowStep<TestContext>>(
             WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
-            WorkflowStep { c -> Outcome.Failure(Outcome.FailureReason.DATA_ERROR_EXIT, c) },
+            WorkflowStep { c -> Outcome.Failure(c, Outcome.FailureReason.DATA_ERROR_EXIT) },
             WorkflowStep { c -> Outcome.Success(c.copy(sum = c.sum * 2)) }
         ))
 
