@@ -3,8 +3,6 @@ package io.jrb.labs.rtl433.router.service.ingester.mqtt
 import io.jrb.labs.commons.logging.LoggerDelegate
 import io.jrb.labs.rtl433.router.datafill.MqttBroker
 import io.jrb.labs.rtl433.router.service.ingester.Source
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import reactor.core.Disposable
@@ -42,7 +40,7 @@ class MqttSource(
         return datafill.topic
     }
 
-    override fun subscribe(topic: String, handler: (String) -> Unit): Disposable? {
+    override fun subscribe(topic: String, handler: (String) -> Unit): Disposable {
         return Flux.create{ sink ->
             mqttClient?.subscribe(topic) { _, message ->
                 val payload = String(message.payload)
