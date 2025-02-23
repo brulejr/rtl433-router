@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class DataIngesterService(
     private val sources: List<Source>,
     private val eventBus: EventBus
-): SmartLifecycle {
+) : SmartLifecycle {
 
     private val log by LoggerDelegate()
 
