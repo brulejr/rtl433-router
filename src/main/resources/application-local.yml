@@ -1,0 +1,6 @@
+application.router.sources:
+  mqtt:
+    - name: rtl433
+      brokerUrl: tcp://10.10.30.23:1883
+      clientId: ${spring.application.name}
+      topic: rtl_433/04dc5b173331/events
