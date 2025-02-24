@@ -49,14 +49,14 @@ class DataIngesterService(
 
     private fun startSources() {
         sources.forEach { source ->
-            log.info("Starting source - sourceType=${source.type()},sourceName=${source.name()}...")
+            log.info("Starting source - sourceType=${source.type},sourceName=${source.name}...")
             source.connect()
         }
     }
 
     private fun stopSources() {
         sources.forEach { source ->
-            log.info("Stopping source - sourceType=${source.type()},sourceName=${source.name()}...")
+            log.info("Stopping source - sourceType=${source.type},sourceName=${source.name}...")
             source.disconnect()
         }
     }
@@ -64,9 +64,9 @@ class DataIngesterService(
     private fun subscribe(handler: (DataMessage) -> Unit): Set<String> {
         sources.forEach { source ->
             val guid: String = UUID.randomUUID().toString()
-            log.info("Subscribing to source - sourceType=${source.type()},sourceName=${source.name()},subscriptionId=$guid...")
-            _subscriptions[guid] = source.subscribe(source.topic()) { m ->
-                handler(DataMessage(source = source.name(), topic = source.topic(), payload = m))
+            log.info("Subscribing to source - sourceType=${source.type},sourceName=${source.name},subscriptionId=$guid...")
+            _subscriptions[guid] = source.subscribe(source.topic) { m ->
+                handler(DataMessage(source = source.name, topic = source.topic, payload = m))
             }
         }
         return _subscriptions.keys

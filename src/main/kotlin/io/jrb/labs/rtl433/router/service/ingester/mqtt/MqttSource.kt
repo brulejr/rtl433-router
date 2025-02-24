@@ -16,6 +16,15 @@ class MqttSource(
 
     private var mqttClient: MqttClient? = null
 
+    override val name: String
+        get() = datafill.name
+
+    override val topic: String
+        get() = datafill.topic
+
+    override val type: String
+        get() = "MQTT"
+
     override fun connect() {
         log.info("Connecting to '${datafill.brokerUrl}' as '${datafill.clientId}'...")
         mqttClient = MqttClient(datafill.brokerUrl, datafill.clientId)
@@ -26,18 +35,6 @@ class MqttSource(
     override fun disconnect() {
         log.info("Disconnecting from '${datafill.brokerUrl}' as '${datafill.clientId}'...")
         mqttClient?.disconnect()
-    }
-
-    override fun name(): String {
-        return datafill.name
-    }
-
-    override fun type(): String {
-        return "MQTT"
-    }
-
-    override fun topic(): String {
-        return datafill.topic
     }
 
     override fun subscribe(topic: String, handler: (String) -> Unit): Disposable {

@@ -4,16 +4,16 @@ import reactor.core.Disposable
 
 interface Source {
 
+    val name: String
+
+    val topic: String
+
+    val type: String
+
     fun connect()
 
     fun disconnect()
 
-    fun name(): String
-
     fun subscribe(topic: String, handler: (String) -> Unit): Disposable?
-
-    fun topic(): String
-
-    fun type(): String
 
 }
