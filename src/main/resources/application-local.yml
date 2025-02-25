@@ -11,3 +11,60 @@ application.router:
         type: weather
       - name: DSC-Security
         type: security
+    devices:
+      - id: 2181534
+        name: office-window
+        area: Office
+        type: window
+      - id: 2256987
+        name: kitchen-sliding-door
+        area: Kitchen
+        type: door
+      - id: 2258011
+        name: master-bedroom-window-east
+        area: MasterBedroom
+        type: window
+      - id: 2258267
+        name: kitchen-sink-window
+        area: Kitchen
+        type: window
+      - id: 2295899
+        name: master-bedroom-window-southwest
+        area: MasterBedroom
+        type: window
+      - id: 2299227
+        name: master-bathroom-window
+        area: MasterBedroom
+        type: window
+      - id: 2321243
+        name: guest-room-window-east
+        area: GuestRoom
+        type: window
+      - id: 2321755
+        name: front-door
+        area: Foyer
+        type: door
+      - id: 2330203
+        name: garage-window-southeast
+        area: Garage
+        type: window
+      - id: 2881949
+        name: kitchen-door
+        area: Kitchen
+        type: door
+      - id: 2893213
+        name: guest-room-window-north
+        area: GuestRoom
+        type: window
+      - id: 3040669
+        name: garage-overhead
+        area: Garage
+        type: door
+      - id: 3054749
+        name: master-bedroom-window-southeast
+        area: MasterBedroom
+        type: window
+      - id: 3062685
+        name: living-room-window-northwest
+        area: LivingRoom
+        type: window

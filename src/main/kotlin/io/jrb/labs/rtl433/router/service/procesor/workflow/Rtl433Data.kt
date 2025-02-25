@@ -7,6 +7,8 @@ import java.time.Instant
 
 data class Rtl433Data(
     val type: String? = null,
+    val area: String? = null,
+    val device: String? = null,
     val time: Instant,
     val model: String,
     val id: String

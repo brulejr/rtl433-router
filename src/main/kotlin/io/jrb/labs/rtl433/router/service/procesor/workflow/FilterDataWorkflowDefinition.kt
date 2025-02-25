@@ -14,11 +14,13 @@ class FilterDataWorkflowDefinition {
     @Bean
     fun filterDataWorkflow(
         readJsonAsRtl433Data: ReadJsonAsRtl433Data,
-        filterByModel: FilterByModel
+        filterByModel: FilterByModel,
+        filterByDevice: FilterByDevice
     ): WorkflowDefinition<FilterDataContext> {
         return WorkflowDefinition(name = WORKFLOW_NAME, contextClass = FilterDataContext::class, steps = listOf(
             readJsonAsRtl433Data,
-            filterByModel
+            filterByModel,
+            filterByDevice
         ))
     }
 
