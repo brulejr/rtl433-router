@@ -25,7 +25,7 @@ class WorkflowServiceImpl : WorkflowService {
     private fun <C : WorkflowContext<C>> buildWorkflow(definition: WorkflowDefinition<C>): (C) -> C {
         val flowName = definition.name
         return { initialContext ->
-            log.info("Running workflow $flowName")
+            log.debug("Running workflow $flowName")
             definition.steps
                 .map { step -> buildWorkflowStep(definition, step) }
                 .fold(initialContext) { acc, fn ->
@@ -45,7 +45,7 @@ class WorkflowServiceImpl : WorkflowService {
         val flowName = definition.name
         val stepName = step.stepName()
         return { context ->
-            log.info("Running workflow $flowName, step $stepName")
+            log.debug("Running workflow step $flowName.$stepName")
             try {
                 step.apply(context)
             } catch(e: Exception) {
