@@ -63,10 +63,10 @@ class DataProcessorService(
         val payload = message.payload as String
         val initialContext = FilterDataContext(workflowName = WORKFLOW_NAME, rawJson = payload)
         return when (val result: Outcome<FilterDataContext> = workflowService.run(filterDataWorkflow, initialContext)) {
-            is Outcome.Success -> flowOf(result.value.rtl433Data)
+            is Outcome.Success -> flowOf(result.value)
             is Outcome.Failure -> {
                 log.warn("FAILURE: reason=${result.reason}")
-                flowOf(result.value.rtl433Data)
+                flowOf(result.value)
             }
             is Outcome.Error -> throw RuntimeException(result.message, result.cause)
         }

@@ -12,7 +12,7 @@ class ReadJsonAsRtl433Data(
 
     override fun apply(context: FilterDataContext): Outcome<FilterDataContext> {
         val rtl433Data = objectMapper.readValue(context.rawJson, Rtl433Data::class.java)
-        return Outcome.Success(context.copy(rtl433Data = rtl433Data))
+        return Outcome.Success(context.copy(rtl433Data = rtl433Data, status = FilterDataContext.Status.DATA_INGESTED))
     }
 
 }
