@@ -15,12 +15,14 @@ class FilterDataWorkflowDefinition {
     fun filterDataWorkflow(
         readJsonAsRtl433Data: ReadJsonAsRtl433Data,
         filterByModel: FilterByModel,
-        filterByDevice: FilterByDevice
+        filterByDevice: FilterByDevice,
+        normalizeDeviceData: NormalizeDeviceData
     ): WorkflowDefinition<FilterDataContext> {
         return WorkflowDefinition(name = WORKFLOW_NAME, contextClass = FilterDataContext::class, steps = listOf(
             readJsonAsRtl433Data,
             filterByModel,
-            filterByDevice
+            filterByDevice,
+            normalizeDeviceData
         ))
     }
 
