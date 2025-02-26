@@ -31,6 +31,7 @@ class WorkflowServiceImpl : WorkflowService {
                 .fold(initialContext) { acc, fn ->
                     when (val result = fn(acc)) {
                         is Outcome.Success -> result.value
+                        is Outcome.Skipped -> result.value
                         is Outcome.Failure -> when (result.reason) {
                             Outcome.FailureReason.DATA_ERROR_CONTINUE -> result.value
                             Outcome.FailureReason.DATA_ERROR_EXIT -> throw WorkflowFailureException(flowName, result)
@@ -45,11 +46,16 @@ class WorkflowServiceImpl : WorkflowService {
         val flowName = definition.name
         val stepName = step.stepName()
         return { context ->
-            log.debug("Running workflow step $flowName.$stepName")
-            try {
-                step.apply(context)
-            } catch(e: Exception) {
-                Outcome.Error(context,"Unexpected workflow step error: workflow=$flowName, step=$stepName", e)
+            if (step.entryCondition(context)) {
+                log.debug("Running workflow step $flowName.$stepName")
+                try {
+                    step.apply(context)
+                } catch(e: Exception) {
+                    Outcome.Error(context,"Unexpected workflow step error: workflow=$flowName, step=$stepName", e)
+                }
+            } else {
+                log.debug("Skipping workflow step $flowName.$stepName")
+                Outcome.Skipped(context)
             }
         }
     }

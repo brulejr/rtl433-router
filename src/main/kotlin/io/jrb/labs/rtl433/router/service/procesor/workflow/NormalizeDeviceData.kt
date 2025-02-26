@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component
 @Component
 class NormalizeDeviceData : WorkflowStep<FilterDataContext> {
 
+    override fun entryCondition(context: FilterDataContext): Boolean {
+        return context.status == FilterDataContext.Status.DATA_ACCEPTED_BY_ID
+    }
+
     override fun apply(context: FilterDataContext): Outcome<FilterDataContext> {
         val rtl433Data = context.rtl433Data
 

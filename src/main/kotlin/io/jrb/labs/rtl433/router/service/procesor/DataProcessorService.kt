@@ -64,6 +64,7 @@ class DataProcessorService(
         val initialContext = FilterDataContext(workflowName = WORKFLOW_NAME, rawJson = payload)
         return when (val result: Outcome<FilterDataContext> = workflowService.run(filterDataWorkflow, initialContext)) {
             is Outcome.Success -> flowOf(result.value)
+            is Outcome.Skipped -> flowOf(result.value)
             is Outcome.Failure -> {
                 log.warn("FAILURE: reason=${result.reason}")
                 flowOf(result.value)
