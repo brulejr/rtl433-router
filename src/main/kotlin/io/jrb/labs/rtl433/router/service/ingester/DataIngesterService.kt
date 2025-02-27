@@ -1,9 +1,9 @@
 package io.jrb.labs.rtl433.router.service.ingester
 
-import io.jrb.labs.commons.eventbus.DataEvent
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
+import io.jrb.labs.rtl433.router.events.RawDataEvent
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Service
 import reactor.core.Disposable
@@ -44,7 +44,7 @@ class DataIngesterService(
     }
 
     private fun processMessage(message: DataMessage) {
-        eventBus.sendEvent(DataEvent(message.source, message.type, message))
+        eventBus.sendEvent(RawDataEvent(message.source, message.type, message))
     }
 
     private fun startSources() {

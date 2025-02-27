@@ -1,23 +1,21 @@
 package io.jrb.labs.rtl433.router.service.procesor
 
-import io.jrb.labs.commons.eventbus.DataEvent
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
 import io.jrb.labs.commons.workflow.Outcome
 import io.jrb.labs.commons.workflow.WorkflowDefinition
 import io.jrb.labs.commons.workflow.WorkflowService
+import io.jrb.labs.rtl433.router.events.FilteredDataEvent
+import io.jrb.labs.rtl433.router.events.RawDataEvent
 import io.jrb.labs.rtl433.router.service.ingester.DataMessage
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataContext
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataWorkflowDefinition.Companion.WORKFLOW_NAME
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Service
@@ -37,13 +35,16 @@ class DataProcessorService(
 
     private val _scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun start() {
         log.info("Starting {}...", _serviceName)
         _scope.launch {
-            eventBus.events(DataEvent::class)
-                .flatMapConcat { receiveDataEvent(it.data as DataMessage) }
-                .collectLatest { log.info("Received: {}", it) }
+            eventBus.events(RawDataEvent::class)
+                .map { Pair(it.source, processRawDataEvent(it.data as DataMessage)) }
+                .collectLatest { (source, context) ->
+                    if (context.status == FilterDataContext.Status.DATA_ACCEPTED_BY_ID) {
+                        eventBus.invokeEvent(FilteredDataEvent(source, "FILTERED", context.rtl433Data))
+                    }
+                }
         }
         eventBus.sendEvent(SystemEvent("service.start", _serviceName))
         _running.getAndSet(true)
@@ -59,15 +60,15 @@ class DataProcessorService(
         return _running.get()
     }
 
-    private fun receiveDataEvent(message: DataMessage): Flow<*> {
+    private fun processRawDataEvent(message: DataMessage): FilterDataContext {
         val payload = message.payload as String
         val initialContext = FilterDataContext(workflowName = WORKFLOW_NAME, rawJson = payload)
         return when (val result: Outcome<FilterDataContext> = workflowService.run(filterDataWorkflow, initialContext)) {
-            is Outcome.Success -> flowOf(result.value)
-            is Outcome.Skipped -> flowOf(result.value)
+            is Outcome.Success -> result.value
+            is Outcome.Skipped -> result.value
             is Outcome.Failure -> {
                 log.warn("FAILURE: reason=${result.reason}")
-                flowOf(result.value)
+                result.value
             }
             is Outcome.Error -> throw RuntimeException(result.message, result.cause)
         }

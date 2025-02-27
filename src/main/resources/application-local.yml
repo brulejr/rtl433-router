@@ -12,6 +12,9 @@ application.router:
       - name: DSC-Security
         type: security
     devices:
+      - id: 870
+        name: neighborhood-weather
+        area: Outside
       - id: 2181534
         name: office-window
         area: Office
