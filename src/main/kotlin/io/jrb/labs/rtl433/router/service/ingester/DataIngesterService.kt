@@ -26,7 +26,7 @@ class DataIngesterService(
     override fun start() {
         log.info("Starting {}...", _serviceName)
         startSources()
-        subscribe { message -> processMessage(message) }
+        subscribe { source, payload -> processMessage(source, payload) }
         eventBus.sendEvent(SystemEvent("service.start", _serviceName))
         _running.getAndSet(true)
     }
@@ -43,8 +43,8 @@ class DataIngesterService(
         return _running.get()
     }
 
-    private fun processMessage(message: DataMessage) {
-        eventBus.sendEvent(RawDataEvent(message.source, message.type, message))
+    private fun processMessage(source: Source, payload: Any) {
+        eventBus.sendEvent(RawDataEvent(source = source.name, topic = source.topic, data = payload))
     }
 
     private fun startSources() {
@@ -61,12 +61,12 @@ class DataIngesterService(
         }
     }
 
-    private fun subscribe(handler: (DataMessage) -> Unit): Set<String> {
+    private fun subscribe(handler: (Source, Any) -> Unit): Set<String> {
         sources.forEach { source ->
             val guid: String = UUID.randomUUID().toString()
             log.info("Subscribing to source - sourceType=${source.type},sourceName=${source.name},subscriptionId=$guid...")
             _subscriptions[guid] = source.subscribe(source.topic) { m ->
-                handler(DataMessage(source = source.name, topic = source.topic, payload = m))
+                handler(source, m)
             }
         }
         return _subscriptions.keys

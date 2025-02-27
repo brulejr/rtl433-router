@@ -8,7 +8,6 @@ import io.jrb.labs.commons.workflow.WorkflowDefinition
 import io.jrb.labs.commons.workflow.WorkflowService
 import io.jrb.labs.rtl433.router.events.FilteredDataEvent
 import io.jrb.labs.rtl433.router.events.RawDataEvent
-import io.jrb.labs.rtl433.router.service.ingester.DataMessage
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataContext
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataWorkflowDefinition.Companion.WORKFLOW_NAME
 import kotlinx.coroutines.CoroutineScope
@@ -39,10 +38,10 @@ class DataProcessorService(
         log.info("Starting {}...", _serviceName)
         _scope.launch {
             eventBus.events(RawDataEvent::class)
-                .map { Pair(it.source, processRawDataEvent(it.data as DataMessage)) }
-                .collectLatest { (source, context) ->
+                .map { Pair(it, processRawDataEvent(it.data as String)) }
+                .collectLatest { (event, context) ->
                     if (context.status == FilterDataContext.Status.DATA_ACCEPTED_BY_ID) {
-                        eventBus.invokeEvent(FilteredDataEvent(source, "FILTERED", context.rtl433Data))
+                        eventBus.invokeEvent(FilteredDataEvent(event, context))
                     }
                 }
         }
@@ -60,9 +59,8 @@ class DataProcessorService(
         return _running.get()
     }
 
-    private fun processRawDataEvent(message: DataMessage): FilterDataContext {
-        val payload = message.payload as String
-        val initialContext = FilterDataContext(workflowName = WORKFLOW_NAME, rawJson = payload)
+    private fun processRawDataEvent(message: String): FilterDataContext {
+        val initialContext = FilterDataContext(workflowName = WORKFLOW_NAME, rawJson = message)
         return when (val result: Outcome<FilterDataContext> = workflowService.run(filterDataWorkflow, initialContext)) {
             is Outcome.Success -> result.value
             is Outcome.Skipped -> result.value

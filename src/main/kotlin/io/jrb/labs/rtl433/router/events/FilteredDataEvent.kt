@@ -24,9 +24,20 @@
 package io.jrb.labs.rtl433.router.events
 
 import io.jrb.labs.commons.eventbus.Event
+import java.time.Instant
+import java.util.UUID
 
 data class FilteredDataEvent<out T>(
+    val id: UUID = UUID.randomUUID(),
+    val timestamp: Instant = Instant.now(),
     override val source: String,
-    override val name: String,
+    override val name: String = "FILTERED",
+    val topic: String,
     override val data: T
-): Event<T>
+): Event<T> {
+    companion object {
+        operator fun <T> invoke(source: RawDataEvent<*>, payload: T): FilteredDataEvent<T> {
+            return FilteredDataEvent(id = source.id, source = source.source, topic = source.topic, data = payload)
+        }
+    }
+}
