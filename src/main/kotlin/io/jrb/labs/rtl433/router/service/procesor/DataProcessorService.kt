@@ -64,7 +64,7 @@ class DataProcessorService(
                 .map { Pair(it, processRawDataEvent(it.data as String)) }
                 .collectLatest { (event, context) ->
                     if (context.status == FilterDataContext.Status.DATA_ACCEPTED_BY_ID) {
-                        eventBus.invokeEvent(FilteredDataEvent(event, context))
+                        eventBus.invokeEvent(FilteredDataEvent(event, context.rtl433Data))
                     }
                 }
         }

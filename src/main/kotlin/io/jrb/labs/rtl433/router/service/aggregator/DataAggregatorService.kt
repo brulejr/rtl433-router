@@ -59,7 +59,7 @@ class DataAggregatorService(
         _scope.launch {
             eventBus.events(DataEvent::class)
                 .map { processEvent(it) }
-                .collectLatest { log.info("Aggregated: {}", it) }
+                .collectLatest { log.debug("Aggregated: {}", it) }
         }
     }
 

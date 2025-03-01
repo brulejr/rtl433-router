@@ -24,7 +24,7 @@
 package io.jrb.labs.rtl433.router.service.aggregator
 
 import io.jrb.labs.rtl433.router.model.FilteredDataEvent
-import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataContext
+import io.jrb.labs.rtl433.router.service.procesor.workflow.Rtl433Data
 
 class DataSummary {
 
@@ -32,11 +32,11 @@ class DataSummary {
     val summary: MutableMap<String, CollectionSummary> = mutableMapOf()
 
     fun aggregate(event: FilteredDataEvent<*>) {
-        val data = event.data as FilterDataContext
-        val area = data.rtl433Data?.area ?: "UNKNOWN"
+        val data = event.data as Rtl433Data
+        val area = data.area ?: "UNKNOWN"
         if (!summary.containsKey(area)) { summary[area] = CollectionSummary() }
-        summary[area]?.model(data.rtl433Data?.model ?: "UNKNOWN")
-        summary[area]?.device(data.rtl433Data?.device ?: "UNKNOWN")
+        summary[area]?.model(data.model)
+        summary[area]?.device(data.device ?: "UNKNOWN")
     }
 
     fun incrementMessageCount() {

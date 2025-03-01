@@ -23,10 +23,12 @@
  */
 package io.jrb.labs.rtl433.router.service.publisher
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
 import io.jrb.labs.rtl433.router.model.FilteredDataEvent
+import io.jrb.labs.rtl433.router.service.procesor.workflow.Rtl433Data
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -39,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @Service
 class DataPublisherService(
     private val targets: List<Target>,
+    private val objectMapper: ObjectMapper,
     private val eventBus: EventBus
 ): SmartLifecycle {
 
@@ -56,6 +59,7 @@ class DataPublisherService(
             eventBus.events(FilteredDataEvent::class)
                 .collectLatest { event ->
                     log.info("Publishing data {}", event.data)
+                    publishMessage(event.data as Rtl433Data)
                 }
         }
         eventBus.sendEvent(SystemEvent("service.start", _serviceName))
@@ -73,8 +77,10 @@ class DataPublisherService(
         return _running.get()
     }
 
-    fun publish(broker: String, topic: String, message: String) {
-        val target = targets.find { it.name == broker }
+    private fun publishMessage(data: Rtl433Data) {
+        val target = targets.find { it.name == "ha" }
+        val topic = "ha_events/${data.area}/${data.device}"
+        val message = objectMapper.writeValueAsString(data)
         target?.publish(topic, message)
     }
 
