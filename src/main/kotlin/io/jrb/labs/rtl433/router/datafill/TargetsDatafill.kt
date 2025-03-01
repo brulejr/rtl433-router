@@ -21,22 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router.events
+package io.jrb.labs.rtl433.router.datafill
 
-import java.time.Instant
-import java.util.UUID
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-data class FilteredDataEvent<out T>(
-    override val id: UUID = UUID.randomUUID(),
-    override val timestamp: Instant = Instant.now(),
-    override val source: String,
-    override val name: String = "FILTERED",
-    override val topic: String,
-    override val data: T
-) : DataEvent<T> {
-    companion object {
-        operator fun <T> invoke(source: RawDataEvent<*>, payload: T): FilteredDataEvent<T> {
-            return FilteredDataEvent(id = source.id, source = source.source, topic = source.topic, data = payload)
-        }
-    }
-}
+@ConfigurationProperties(prefix = "application.router.targets")
+data class TargetsDatafill(
+    val mqtt: List<MqttBroker>
+)
+

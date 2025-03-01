@@ -21,43 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router.service.ingester
+package io.jrb.labs.rtl433.router.service.publisher
 
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
-import io.jrb.labs.rtl433.router.model.RawDataEvent
+import io.jrb.labs.rtl433.router.model.FilteredDataEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.springframework.context.SmartLifecycle
 import org.springframework.stereotype.Service
-import reactor.core.Disposable
-import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Service
-class DataIngesterService(
-    private val sources: List<Source>,
+class DataPublisherService(
+    private val targets: List<Target>,
     private val eventBus: EventBus
-) : SmartLifecycle {
+): SmartLifecycle {
 
     private val log by LoggerDelegate()
 
     private val _serviceName = javaClass.simpleName
     private val _running: AtomicBoolean = AtomicBoolean()
 
-    private val _subscriptions: MutableMap<String, Disposable?> = mutableMapOf()
+    private val _scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun start() {
         log.info("Starting {}...", _serviceName)
-        startSources()
-        subscribe { source, payload -> processMessage(source, payload) }
+        startTargets()
+        _scope.launch {
+            eventBus.events(FilteredDataEvent::class)
+                .collectLatest { event ->
+                    log.info("Publishing data {}", event.data)
+                }
+        }
         eventBus.sendEvent(SystemEvent("service.start", _serviceName))
         _running.getAndSet(true)
     }
 
     override fun stop() {
         log.info("Stopping {}...", _serviceName)
-        unsubscribe()
-        stopSources()
+        stopTargets()
         eventBus.sendEvent(SystemEvent("service.stop", _serviceName))
         _running.getAndSet(true)
     }
@@ -66,39 +73,22 @@ class DataIngesterService(
         return _running.get()
     }
 
-    private fun processMessage(source: Source, payload: Any) {
-        eventBus.sendEvent(RawDataEvent(source = source.name, topic = source.topic, data = payload))
+    fun publish(broker: String, topic: String, message: String) {
+        val target = targets.find { it.name == broker }
+        target?.publish(topic, message)
     }
 
-    private fun startSources() {
-        sources.forEach { source ->
-            log.info("Starting source - sourceType=${source.type},sourceName=${source.name}...")
-            source.connect()
+    private fun startTargets() {
+        targets.forEach { target ->
+            log.info("Starting target - sourceType=${target.type},sourceName=${target.name}...")
+            target.connect()
         }
     }
 
-    private fun stopSources() {
-        sources.forEach { source ->
-            log.info("Stopping source - sourceType=${source.type},sourceName=${source.name}...")
-            source.disconnect()
-        }
-    }
-
-    private fun subscribe(handler: (Source, Any) -> Unit): Set<String> {
-        sources.forEach { source ->
-            val guid: String = UUID.randomUUID().toString()
-            log.info("Subscribing to source - sourceType=${source.type},sourceName=${source.name},subscriptionId=$guid...")
-            _subscriptions[guid] = source.subscribe(source.topic) { m ->
-                handler(source, m)
-            }
-        }
-        return _subscriptions.keys
-    }
-
-    fun unsubscribe() {
-        _subscriptions.forEach { subscription ->
-            log.info("Unsubscribing from source - subscriptionId=${subscription.key}...")
-            subscription.value?.dispose()
+    private fun stopTargets() {
+        targets.forEach { target ->
+            log.info("Stopping target - sourceType=${target.type},sourceName=${target.name}...")
+            target.disconnect()
         }
     }
 

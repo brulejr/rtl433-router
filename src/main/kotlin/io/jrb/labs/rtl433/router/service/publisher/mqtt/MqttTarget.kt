@@ -21,36 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router.config
+package io.jrb.labs.rtl433.router.service.publisher.mqtt
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.workflow.WorkflowServiceImpl
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import io.jrb.labs.rtl433.router.service.ingester.Source
-import io.jrb.labs.rtl433.router.service.ingester.mqtt.MqttSource
+import io.jrb.labs.commons.logging.LoggerDelegate
+import io.jrb.labs.rtl433.router.datafill.MqttBroker
 import io.jrb.labs.rtl433.router.service.publisher.Target
-import io.jrb.labs.rtl433.router.service.publisher.mqtt.MqttTarget
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.eclipse.paho.client.mqttv3.MqttClient
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.MqttMessage
 
-@Configuration
-class ApplicationConfiguration {
+class MqttTarget(
+    private val datafill: MqttBroker
+) : Target {
 
-    @Bean
-    fun eventBus() = EventBus()
+    private val log by LoggerDelegate()
 
-    @Bean
-    fun sources(sourcesDatafill: SourcesDatafill): List<Source> {
-        return sourcesDatafill.mqtt.map { source -> MqttSource(source) }
+    private var mqttClient: MqttClient? = null
+
+    override val name: String
+        get() = datafill.name
+
+    override val type: String
+        get() = "MQTT"
+
+    override fun connect() {
+        log.info("Connecting to '${datafill.brokerUrl}' as '${datafill.clientId}'...")
+        mqttClient = MqttClient(datafill.brokerUrl, datafill.clientId)
+        val options = MqttConnectOptions()
+        mqttClient?.connect(options)
     }
 
-    @Bean
-    fun targets(targetsDatafill: TargetsDatafill): List<Target> {
-        return targetsDatafill.mqtt.map { target -> MqttTarget(target) }
+    override fun disconnect() {
+        log.info("Disconnecting from '${datafill.brokerUrl}' as '${datafill.clientId}'...")
+        mqttClient?.disconnect()
     }
 
-    @Bean
-    fun workflowService() = WorkflowServiceImpl()
+    override fun publish(topic: String, message: String) {
+        val mqttMessage = MqttMessage(message.toByteArray(Charsets.UTF_8))
+        mqttClient?.publish(topic, mqttMessage)
+    }
 
 }

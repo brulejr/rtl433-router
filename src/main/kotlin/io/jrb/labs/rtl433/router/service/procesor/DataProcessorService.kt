@@ -29,8 +29,8 @@ import io.jrb.labs.commons.logging.LoggerDelegate
 import io.jrb.labs.commons.workflow.Outcome
 import io.jrb.labs.commons.workflow.WorkflowDefinition
 import io.jrb.labs.commons.workflow.WorkflowService
-import io.jrb.labs.rtl433.router.events.FilteredDataEvent
-import io.jrb.labs.rtl433.router.events.RawDataEvent
+import io.jrb.labs.rtl433.router.model.FilteredDataEvent
+import io.jrb.labs.rtl433.router.model.RawDataEvent
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataContext
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataWorkflowDefinition.Companion.WORKFLOW_NAME
 import kotlinx.coroutines.CoroutineScope

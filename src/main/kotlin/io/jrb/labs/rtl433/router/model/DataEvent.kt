@@ -1,4 +1,4 @@
-package io.jrb.labs.rtl433.router.events
+package io.jrb.labs.rtl433.router.model
 
 import io.jrb.labs.commons.eventbus.Event
 import java.time.Instant

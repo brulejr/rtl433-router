@@ -23,7 +23,7 @@
  */
 package io.jrb.labs.rtl433.router.service.aggregator
 
-import io.jrb.labs.rtl433.router.events.FilteredDataEvent
+import io.jrb.labs.rtl433.router.model.FilteredDataEvent
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataContext
 
 class DataSummary {

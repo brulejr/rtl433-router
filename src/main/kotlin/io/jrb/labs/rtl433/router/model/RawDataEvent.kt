@@ -21,36 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router.config
+package io.jrb.labs.rtl433.router.model
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.workflow.WorkflowServiceImpl
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import io.jrb.labs.rtl433.router.service.ingester.Source
-import io.jrb.labs.rtl433.router.service.ingester.mqtt.MqttSource
-import io.jrb.labs.rtl433.router.service.publisher.Target
-import io.jrb.labs.rtl433.router.service.publisher.mqtt.MqttTarget
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import java.time.Instant
+import java.util.UUID
 
-@Configuration
-class ApplicationConfiguration {
-
-    @Bean
-    fun eventBus() = EventBus()
-
-    @Bean
-    fun sources(sourcesDatafill: SourcesDatafill): List<Source> {
-        return sourcesDatafill.mqtt.map { source -> MqttSource(source) }
-    }
-
-    @Bean
-    fun targets(targetsDatafill: TargetsDatafill): List<Target> {
-        return targetsDatafill.mqtt.map { target -> MqttTarget(target) }
-    }
-
-    @Bean
-    fun workflowService() = WorkflowServiceImpl()
-
-}
+data class RawDataEvent<out T>(
+    override val id: UUID = UUID.randomUUID(),
+    override val timestamp: Instant = Instant.now(),
+    override val source: String,
+    override val name: String = "RAW",
+    override val topic: String,
+    override val data: T
+) : DataEvent<T>

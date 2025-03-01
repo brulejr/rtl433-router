@@ -21,16 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router.events
+package io.jrb.labs.rtl433.router.service.publisher
 
-import java.time.Instant
-import java.util.UUID
+interface Target {
 
-data class RawDataEvent<out T>(
-    override val id: UUID = UUID.randomUUID(),
-    override val timestamp: Instant = Instant.now(),
-    override val source: String,
-    override val name: String = "RAW",
-    override val topic: String,
-    override val data: T
-) : DataEvent<T>
+    val name: String
+
+    val type: String
+
+    fun connect()
+
+    fun disconnect()
+
+    fun publish(topic: String, message: String)
+
+}

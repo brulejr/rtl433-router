@@ -27,9 +27,9 @@ import io.jrb.labs.commons.eventbus.Event
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
-import io.jrb.labs.rtl433.router.events.DataEvent
-import io.jrb.labs.rtl433.router.events.FilteredDataEvent
-import io.jrb.labs.rtl433.router.events.RawDataEvent
+import io.jrb.labs.rtl433.router.model.DataEvent
+import io.jrb.labs.rtl433.router.model.FilteredDataEvent
+import io.jrb.labs.rtl433.router.model.RawDataEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
