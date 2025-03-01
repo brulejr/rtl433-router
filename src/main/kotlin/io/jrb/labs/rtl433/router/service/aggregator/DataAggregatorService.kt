@@ -27,6 +27,7 @@ import io.jrb.labs.commons.eventbus.Event
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
+import io.jrb.labs.rtl433.router.events.DataEvent
 import io.jrb.labs.rtl433.router.events.FilteredDataEvent
 import io.jrb.labs.rtl433.router.events.RawDataEvent
 import kotlinx.coroutines.CoroutineScope
@@ -56,9 +57,9 @@ class DataAggregatorService(
     init {
         log.info("Initializing {}...", _serviceName)
         _scope.launch {
-            eventBus.events()
+            eventBus.events(DataEvent::class)
                 .map { processEvent(it) }
-                .collectLatest { log.debug("Aggregated: {}", it) }
+                .collectLatest { log.info("Aggregated: {}", it) }
         }
     }
 

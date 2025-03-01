@@ -38,7 +38,7 @@ class EventBus {
 
     fun <T, E : Event<T>> events(eventType: KClass<E>): Flow<E> {
         val eventClass: Class<E> = eventType.java
-        return _eventFlow.filter { it.type == eventClass.simpleName }.map { eventClass.cast(it) }
+        return _eventFlow.filter { eventClass.isAssignableFrom(it.javaClass) }.map { eventClass.cast(it) }
     }
 
     suspend fun <T> invokeEvent(event: Event<T>) = _events.emit(event)

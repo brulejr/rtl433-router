@@ -23,15 +23,14 @@
  */
 package io.jrb.labs.rtl433.router.events
 
-import io.jrb.labs.commons.eventbus.Event
 import java.time.Instant
 import java.util.UUID
 
 data class RawDataEvent<out T>(
-    val id: UUID = UUID.randomUUID(),
-    val timestamp: Instant = Instant.now(),
+    override val id: UUID = UUID.randomUUID(),
+    override val timestamp: Instant = Instant.now(),
     override val source: String,
     override val name: String = "RAW",
-    val topic: String,
+    override val topic: String,
     override val data: T
-): Event<T>
+) : DataEvent<T>
