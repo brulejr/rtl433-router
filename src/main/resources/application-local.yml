@@ -11,6 +11,9 @@ application.router:
         brokerUrl: tcp://localhost:1883
         clientId: ${spring.application.name}
         topic: ha_events
+  publishing:
+    broker: ha
+    base-topic: ha_events
   filter-data-workflow:
     models:
       - name: Acurite-Tower

@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
+import io.jrb.labs.rtl433.router.datafill.PublishingDatafill
 import io.jrb.labs.rtl433.router.model.FilteredDataEvent
 import io.jrb.labs.rtl433.router.service.procesor.workflow.Rtl433Data
 import kotlinx.coroutines.CoroutineScope
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 @Service
 class DataPublisherService(
+    private val publishingDatafill: PublishingDatafill,
     private val targets: List<Target>,
     private val objectMapper: ObjectMapper,
     private val eventBus: EventBus
@@ -78,8 +80,8 @@ class DataPublisherService(
     }
 
     private fun publishMessage(data: Rtl433Data) {
-        val target = targets.find { it.name == "ha" }
-        val topic = "ha_events/${data.area}/${data.device}"
+        val target = targets.find { it.name == publishingDatafill.broker }
+        val topic = "${publishingDatafill.baseTopic}/${data.area}/${data.device}"
         val message = objectMapper.writeValueAsString(data)
         target?.publish(topic, message)
     }

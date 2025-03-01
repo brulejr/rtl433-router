@@ -21,25 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router
+package io.jrb.labs.rtl433.router.datafill
 
-import io.jrb.labs.rtl433.router.datafill.FilterDataWorkflowDatafill
-import io.jrb.labs.rtl433.router.datafill.PublishingDatafill
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.boot.runApplication
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-@SpringBootApplication
-@EnableConfigurationProperties(
-	FilterDataWorkflowDatafill::class,
-	PublishingDatafill::class,
-	SourcesDatafill::class,
-	TargetsDatafill::class
+@ConfigurationProperties(prefix = "application.router.publishing")
+data class PublishingDatafill(
+    val broker: String,
+    val baseTopic: String
 )
-class Rtl433RouterApplication
-
-fun main(args: Array<String>) {
-	runApplication<Rtl433RouterApplication>(*args)
-}
