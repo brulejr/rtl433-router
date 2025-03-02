@@ -53,7 +53,7 @@ class NormalizeDeviceData : WorkflowStep<FilterDataContext> {
     companion object {
         const val CELSIUS_SUFFIX = "_C"
         const val FAHRENHEIT_SUFFIX = "_F"
-        val CELSIUS_TO_FAHRENHEIT_FN: (Any?) -> Any? = { if (it is Number) (it as Double * 9/5) + 32 else null }
+        val CELSIUS_TO_FAHRENHEIT_FN: (Any?) -> Any? = { if (it is Number) (it.toDouble() * 9/5) + 32 else null }
     }
 
 }
