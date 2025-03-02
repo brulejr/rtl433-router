@@ -1,0 +1,11 @@
+@startjson
+{
+  "time": "Instant",
+  "model": "String",
+  "id": "String",
+  "properties": {
+    "key1": "value1",
+    "key2": "value2"
+  }
+}
+@endjson

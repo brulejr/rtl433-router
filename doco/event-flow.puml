@@ -1,0 +1,24 @@
+@startuml
+
+actor MQTT_RTL433
+participant "DataIngester" as DI
+participant "EventBus" as EB
+participant "DataProcessor" as DP
+participant "DataAggregator" as DA
+participant "DataPublisher" as DPU
+actor MQTT_HA
+
+MQTT_RTL433 -> DI : Receive Raw message
+activate DI
+DI -> EB : Publish RawDataEvent
+deactivate DI
+EB -> DP : RawDataEvent
+activate DP
+DP -> EB : Publish FilterDataEvent
+deactivate DP
+EB -> DA : FilterDataEvent
+EB -> DPU : FilterDataEvent
+activate DPU
+DPU -> MQTT_HA : Publish HA Event
+deactivate DPU
+@enduml

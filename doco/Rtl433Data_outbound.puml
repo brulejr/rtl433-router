@@ -1,0 +1,14 @@
+@startjson
+{
+  "model": "String",
+  "id": "String",
+  "type": "String?",
+  "area": "String?",
+  "device": "String?",
+  "time": "Instant",
+  "properties": {
+    "key1": "value1",
+    "key2": "value2"
+  }
+}
+@endjson
