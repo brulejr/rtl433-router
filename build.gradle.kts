@@ -3,6 +3,8 @@ plugins {
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.4.2"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("com.google.cloud.tools.jib") version "3.4.4"
+	jacoco
 }
 
 group = "io.jrb.labs"
@@ -53,4 +55,37 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+tasks.jacocoTestReport {
+	dependsOn(tasks.test) // tests are required to run before generating the report
+}
+
+jacoco {
+	toolVersion = "0.8.12"
+	reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
+}
+
+jib {
+	from {
+		image = "openjdk:21-jdk-slim"
+		platforms {
+			platform {
+				architecture= "amd64"
+				os = "linux"
+			}
+		}
+	}
+	to {
+		image = "brulejr/${rootProject.name}"
+		tags = setOf("latest", "$version")
+	}
+	container {
+		ports = listOf("4100")
+		creationTime = "USE_CURRENT_TIMESTAMP"
+		jvmFlags = listOf("-Xms256m", "-Xmx512m", "-Dspring.config.additional-location=file:/config/")
+	}
 }
