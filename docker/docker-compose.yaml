@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+
+  rtl_433_ingester:
+    container_name: rtl433-router
+    image: brulejr/rtl433-router
+    ports:
+      - "4100:4100"
+    environment:
+      PROFILE: "prod"
+    volumes:
+      - ./application-prod.yml:/config/application-prod.yml:z
+
+volumes:
+  config:
