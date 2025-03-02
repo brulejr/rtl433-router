@@ -37,8 +37,8 @@ class NormalizeDeviceData : WorkflowStep<FilterDataContext> {
     override fun apply(context: FilterDataContext): Outcome<FilterDataContext> {
         val rtl433Data = context.rtl433Data
 
-        val fields = updateFields(rtl433Data?.extraFields, CELSIUS_SUFFIX, FAHRENHEIT_SUFFIX, CELSIUS_TO_FAHRENHEIT_FN)
-        val updatedRtl433Data = rtl433Data?.copy(extraFields = rtl433Data.extraFields + fields)
+        val fields = updateFields(rtl433Data?.getProperties(), CELSIUS_SUFFIX, FAHRENHEIT_SUFFIX, CELSIUS_TO_FAHRENHEIT_FN)
+        val updatedRtl433Data = rtl433Data?.copy(properties = rtl433Data.getProperties() + fields)
 
         return Outcome.Success(context.copy(rtl433Data = updatedRtl433Data))
     }

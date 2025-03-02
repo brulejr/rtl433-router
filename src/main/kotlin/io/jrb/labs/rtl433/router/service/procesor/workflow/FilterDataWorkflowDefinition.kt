@@ -44,8 +44,8 @@ class FilterDataWorkflowDefinition {
         return WorkflowDefinition(name = WORKFLOW_NAME, contextClass = FilterDataContext::class, steps = listOf(
             readJsonAsRtl433Data,
             filterByModel,
-            filterByDevice,
-            normalizeDeviceData
+            filterByDevice
+//            normalizeDeviceData
         ))
     }
 

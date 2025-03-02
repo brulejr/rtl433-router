@@ -36,15 +36,15 @@ data class Rtl433Data(
     val time: Instant,
     val model: String,
     val id: String,
-    val extraFields: Map<String, Any?> = mapOf()
+    private val properties: Map<String, Any?> = mapOf()
 ) {
 
-    operator fun contains(key: String): Boolean = extraFields.containsKey(key)
+    operator fun contains(key: String): Boolean = properties.containsKey(key)
 
-    operator fun get(key: String): Any? = extraFields[key]
+    operator fun get(key: String): Any? = properties[key]
 
     @JsonAnyGetter
-    private fun getProperty(): Map<String, Any?> = extraFields
+    fun getProperties(): Map<String, Any?> = properties
 
     class Builder(private var model: String, private var id: String) {
 
@@ -56,7 +56,7 @@ data class Rtl433Data(
 
         var time: Instant = Instant.now()
 
-        var extraFields: MutableMap<String, Any?> = mutableMapOf()
+        var properties: MutableMap<String, Any?> = mutableMapOf()
 
         fun build() = Rtl433Data(
             type = type,
@@ -65,12 +65,12 @@ data class Rtl433Data(
             time = time,
             model = model,
             id = id,
-            extraFields = extraFields.toMap()
+            properties = properties.toMap()
         )
 
         @JsonAnySetter
         private fun setProperty(key: String, value: Any?) {
-            extraFields[key] = value
+            properties[key] = value
         }
 
     }
