@@ -1,12 +1,12 @@
 package io.jrb.labs.commons.workflow
 
 import io.jrb.labs.commons.test.TestUtils
-import io.jrb.labs.commons.workflow.CoRoutineTest.StepType1
-import io.jrb.labs.commons.workflow.CoRoutineTest.StepType2
+import io.jrb.labs.commons.workflow.FunctionChainingTest.StepType1
+import io.jrb.labs.commons.workflow.FunctionChainingTest.StepType2
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class CoRoutineTest : TestUtils {
+class FunctionChainingTest : TestUtils {
 
     @Test
     fun `should execute a simple synchronous chain`() {
@@ -41,7 +41,7 @@ class CoRoutineTest : TestUtils {
     }
 
     @Test
-    fun `should execute a simple named numeric chain`() {
+    fun `should execute a type 1 named numeric chain`() {
         val steps = listOf(
             StepType1 { c -> c.copy(sum = c.sum + 1) },
             StepType1 { c -> c.copy(sum = c.sum * 2) },
@@ -58,7 +58,7 @@ class CoRoutineTest : TestUtils {
     }
 
     @Test
-    fun `should execute a complex named numeric chain`() {
+    fun `should execute a type 2 named numeric chain`() {
         val steps = listOf(
             StepType2 { c -> c.copy(sum = c.sum + 1) },
             StepType2 { c -> c.copy(sum = c.sum * 2) },
@@ -74,10 +74,37 @@ class CoRoutineTest : TestUtils {
             .hasFieldOrPropertyWithValue("sum", 11)
     }
 
+    @Test
+    fun `should execute a type 3 named numeric chain - happy path`() {
+        val steps = listOf(
+            StepType3 { c -> Outcome.Success(c.copy(sum = c.sum + 1)) },
+            StepType3 { c -> Outcome.Success(c.copy(sum = c.sum * 2)) },
+            StepType3 { c -> Outcome.Success(c.copy(sum = c.sum + 10)) },
+            StepType3 { c -> Outcome.Success(c.copy(sum = c.sum / 2)) }
+        )
+
+        val chain = steps.reduce { acc, nextfn -> StepType3 {
+            acc.execute(it)
+            .takeIf { it is Outcome.Success }.let { it as Outcome.Success }.value
+            .let(nextfn::execute)
+        } }
+
+        val result = chain.execute(TestContext(sum = 5))
+
+        assertThat(result)
+            .isInstanceOf(Outcome.Success::class.java)
+            .extracting("value")
+            .hasFieldOrPropertyWithValue("sum", 11)
+    }
+
     private fun interface StepType1 : (TestContext) -> TestContext
 
     private fun interface StepType2 {
         fun execute(context: TestContext): TestContext
+    }
+
+    private fun interface StepType3 {
+        fun execute(context: TestContext): Outcome<TestContext>
     }
 
 }
