@@ -147,8 +147,10 @@ class FunctionChainingTest : TestUtils {
 
         val chain = steps.reduce { acc, nextfn -> StepType3Concurrent {
             nextfn.execute(
-                acc.execute(it)
-                    .takeIf { o -> o is Outcome.Success }.let { o -> (o as Outcome.Success).value }
+                when (val outcome = acc.execute(it)) {
+                    is Outcome.Success -> outcome.value
+                    else -> it
+                }
             )
         } }
 
