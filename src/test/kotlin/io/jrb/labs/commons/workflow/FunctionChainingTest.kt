@@ -85,9 +85,12 @@ class FunctionChainingTest : TestUtils {
         )
 
         val chain = steps.reduce { acc, nextfn -> StepType3 {
-            acc.execute(it)
-                .takeIf { o -> o is Outcome.Success }.let { o -> (o as Outcome.Success).value }
-                .let(nextfn::execute)
+            nextfn.execute(
+                when (val outcome = acc.execute(it)) {
+                    is Outcome.Success -> outcome.value
+                    else -> it
+                }
+            )
         } }
 
         val result = chain.execute(TestContext(sum = 5))
