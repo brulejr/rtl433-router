@@ -20,24 +20,34 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ *
  */
-package io.jrb.labs.commons.workflow
+package io.jrb.labs.commons.workflow.coroutine
 
-import io.jrb.labs.commons.service.ServiceException
+sealed class StepOutcome<C : WorkflowContext<C>> {
 
-open class WorkflowException(workflow: String, cause: Throwable?, message: String? = null): ServiceException(
-    message = message ?: "An unexpected error occurred in workflow $workflow",
-    cause = cause
-)
+    data class Success<C : WorkflowContext<C>>(val context: C) : StepOutcome<C>()
 
-class WorkflowErrorException(workflow: String, val outcome: Outcome.Error<Any>): WorkflowException(
-    workflow = workflow,
-    message = "Exiting workflow $workflow due to error",
-    cause = null
-)
+    data class Failure<C : WorkflowContext<C>>(
+        val context: C, val reason: FailureReason
+    ) : StepOutcome<C>()
 
-class WorkflowFailureException(workflow: String, val outcome: Outcome.Failure<Any>): WorkflowException(
-    workflow = workflow,
-    message = "Exiting workflow $workflow due to failure",
-    cause = null
-)
+    data class Error<C : WorkflowContext<C>>(
+        val context: C, val message: String, val exception: Exception?
+    ) : StepOutcome<C>()
+
+    data class Skipped<C : WorkflowContext<C>>(
+        val context: C, val reason: SkippedReason = SkippedReason.GUARD_CHECK_VIOLATION
+    ) : StepOutcome<C>()
+
+    enum class FailureReason {
+        DATA_ERROR_CONTINUE,
+        DATA_ERROR_EXIT
+    }
+
+    enum class SkippedReason {
+        GUARD_CHECK_VIOLATION
+    }
+
+}

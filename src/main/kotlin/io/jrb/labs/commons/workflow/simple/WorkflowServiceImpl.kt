@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.commons.workflow
+package io.jrb.labs.commons.workflow.simple
 
 import io.jrb.labs.commons.logging.LoggerDelegate
 
@@ -41,7 +41,7 @@ class WorkflowServiceImpl : WorkflowService {
         } catch (e: WorkflowFailureException) {
             return e.outcome as Outcome.Failure<C>
         } catch(e: Exception) {
-            return Outcome.Error(context,e.message ?: "Unexpected workflow error occurred: workflow=$flowName", e)
+            return Outcome.Error(context, e.message ?: "Unexpected workflow error occurred: workflow=$flowName", e)
         }
     }
 
@@ -65,7 +65,7 @@ class WorkflowServiceImpl : WorkflowService {
         }
     }
 
-    private fun <C :WorkflowContext<C>> buildWorkflowStep(definition: WorkflowDefinition<C>, step: WorkflowStep<C>): (C) -> Outcome<C> {
+    private fun <C : WorkflowContext<C>> buildWorkflowStep(definition: WorkflowDefinition<C>, step: WorkflowStep<C>): (C) -> Outcome<C> {
         val flowName = definition.name
         val stepName = step.stepName()
         return { context ->
@@ -74,7 +74,7 @@ class WorkflowServiceImpl : WorkflowService {
                 try {
                     step.apply(context)
                 } catch(e: Exception) {
-                    Outcome.Error(context,"Unexpected workflow step error: workflow=$flowName, step=$stepName", e)
+                    Outcome.Error(context, "Unexpected workflow step error: workflow=$flowName, step=$stepName", e)
                 }
             } else {
                 log.debug("Skipping workflow step $flowName.$stepName")

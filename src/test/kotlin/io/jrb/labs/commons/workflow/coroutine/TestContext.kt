@@ -20,37 +20,21 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ *
  */
-package io.jrb.labs.rtl433.router.config
+package io.jrb.labs.commons.workflow.coroutine
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.workflow.simple.WorkflowServiceImpl
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import io.jrb.labs.rtl433.router.service.ingester.Source
-import io.jrb.labs.rtl433.router.service.ingester.mqtt.MqttSource
-import io.jrb.labs.rtl433.router.service.publisher.Target
-import io.jrb.labs.rtl433.router.service.publisher.mqtt.MqttTarget
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+data class TestContext(
 
-@Configuration
-class ApplicationConfiguration {
+    override val workflowName: String = "",
+    val data: MutableMap<String, Any> = mutableMapOf(),
+    val sum: Int = 0
 
-    @Bean
-    fun eventBus() = EventBus()
+) : WorkflowContext<TestContext> {
 
-    @Bean
-    fun sources(sourcesDatafill: SourcesDatafill): List<Source> {
-        return sourcesDatafill.mqtt.map { source -> MqttSource(source) }
+    override fun withWorkflowName(workflowName: String): TestContext {
+        return copy(workflowName = workflowName)
     }
-
-    @Bean
-    fun targets(targetsDatafill: TargetsDatafill): List<Target> {
-        return targetsDatafill.mqtt.map { target -> MqttTarget(target) }
-    }
-
-    @Bean
-    fun workflowService() = WorkflowServiceImpl()
 
 }

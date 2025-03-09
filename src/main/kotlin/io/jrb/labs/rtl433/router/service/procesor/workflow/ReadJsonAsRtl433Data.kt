@@ -24,8 +24,8 @@
 package io.jrb.labs.rtl433.router.service.procesor.workflow
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.jrb.labs.commons.workflow.Outcome
-import io.jrb.labs.commons.workflow.WorkflowStep
+import io.jrb.labs.commons.workflow.simple.Outcome
+import io.jrb.labs.commons.workflow.simple.WorkflowStep
 import org.springframework.stereotype.Component
 
 @Component

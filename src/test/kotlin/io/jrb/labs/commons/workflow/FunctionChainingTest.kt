@@ -3,6 +3,7 @@ package io.jrb.labs.commons.workflow
 import io.jrb.labs.commons.test.TestUtils
 import io.jrb.labs.commons.workflow.FunctionChainingTest.StepType1
 import io.jrb.labs.commons.workflow.FunctionChainingTest.StepType2
+import io.jrb.labs.commons.workflow.simple.Outcome
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

@@ -23,6 +23,8 @@
  */
 package io.jrb.labs.commons.workflow
 
+import io.jrb.labs.commons.workflow.simple.WorkflowContext
+
 data class TestContext(
 
     override val workflowName: String = "",

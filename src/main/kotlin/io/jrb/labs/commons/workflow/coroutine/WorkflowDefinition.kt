@@ -20,17 +20,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ *
  */
-package io.jrb.labs.commons.workflow
+package io.jrb.labs.commons.workflow.coroutine
 
-fun interface WorkflowStep<C : WorkflowContext<C>> {
+import kotlin.reflect.KClass
 
-    fun entryCondition(context: C): Boolean = true
-
-    fun stepName(): String {
-        return javaClass.name.substringAfterLast('.')
-    }
-
-    fun apply(context: C): Outcome<C>
-
-}
+data class WorkflowDefinition<C : WorkflowContext<C>>(
+    val name: String,
+    val contextClass: KClass<C>,
+    val steps: List<WorkflowStep<C>>
+)

@@ -26,9 +26,9 @@ package io.jrb.labs.rtl433.router.service.procesor
 import io.jrb.labs.commons.eventbus.EventBus
 import io.jrb.labs.commons.eventbus.SystemEvent
 import io.jrb.labs.commons.logging.LoggerDelegate
-import io.jrb.labs.commons.workflow.Outcome
-import io.jrb.labs.commons.workflow.WorkflowDefinition
-import io.jrb.labs.commons.workflow.WorkflowService
+import io.jrb.labs.commons.workflow.simple.Outcome
+import io.jrb.labs.commons.workflow.simple.WorkflowDefinition
+import io.jrb.labs.commons.workflow.simple.WorkflowService
 import io.jrb.labs.rtl433.router.model.FilteredDataEvent
 import io.jrb.labs.rtl433.router.model.RawDataEvent
 import io.jrb.labs.rtl433.router.service.procesor.workflow.FilterDataContext

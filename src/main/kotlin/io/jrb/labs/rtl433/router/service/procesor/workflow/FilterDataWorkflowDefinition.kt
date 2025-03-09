@@ -23,7 +23,7 @@
  */
 package io.jrb.labs.rtl433.router.service.procesor.workflow
 
-import io.jrb.labs.commons.workflow.WorkflowDefinition
+import io.jrb.labs.commons.workflow.simple.WorkflowDefinition
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

@@ -21,12 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.commons.workflow
+package io.jrb.labs.commons.workflow.simple
 
-import kotlin.reflect.KClass
+interface WorkflowService {
 
-data class WorkflowDefinition<C :WorkflowContext<C>>(
-    val name: String,
-    val contextClass: KClass<C>,
-    val steps: List<WorkflowStep<C>>
-)
+    fun <C : WorkflowContext<C>> run(definition: WorkflowDefinition<C>, context: C): Outcome<C>
+
+}

@@ -20,37 +20,42 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ *
  */
-package io.jrb.labs.rtl433.router.config
+package io.jrb.labs.commons.workflow.coroutine
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.workflow.simple.WorkflowServiceImpl
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import io.jrb.labs.rtl433.router.service.ingester.Source
-import io.jrb.labs.rtl433.router.service.ingester.mqtt.MqttSource
-import io.jrb.labs.rtl433.router.service.publisher.Target
-import io.jrb.labs.rtl433.router.service.publisher.mqtt.MqttTarget
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
-@Configuration
-class ApplicationConfiguration {
+class WorkflowEngine {
 
-    @Bean
-    fun eventBus() = EventBus()
+    fun <C : WorkflowContext<C>> runWorkflow(definition: WorkflowDefinition<C>, initialContext: C): Flow<StepOutcome<C>> = flow {
+        var currentContext = initialContext.withWorkflowName(definition.name)
 
-    @Bean
-    fun sources(sourcesDatafill: SourcesDatafill): List<Source> {
-        return sourcesDatafill.mqtt.map { source -> MqttSource(source) }
+        for (step in definition.steps) {
+            if (!step.shouldExecute(currentContext)) {
+                val skipped = StepOutcome.Skipped(context = currentContext)
+                emit(skipped)
+                continue
+            }
+
+            when (val outcome = step.execute(currentContext)) {
+                is StepOutcome.Success -> {
+                    currentContext = outcome.context
+                    emit(outcome)
+                }
+                is StepOutcome.Failure -> {
+                    emit(outcome)
+                    return@flow
+                }
+                is StepOutcome.Error -> {
+                    emit(outcome)
+                    return@flow
+                }
+                is StepOutcome.Skipped -> emit(outcome)
+            }
+        }
     }
-
-    @Bean
-    fun targets(targetsDatafill: TargetsDatafill): List<Target> {
-        return targetsDatafill.mqtt.map { target -> MqttTarget(target) }
-    }
-
-    @Bean
-    fun workflowService() = WorkflowServiceImpl()
 
 }

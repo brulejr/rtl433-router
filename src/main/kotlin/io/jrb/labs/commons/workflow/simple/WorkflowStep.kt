@@ -21,10 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.commons.workflow
+package io.jrb.labs.commons.workflow.simple
 
-interface WorkflowService {
+fun interface WorkflowStep<C : WorkflowContext<C>> {
 
-    fun <C : WorkflowContext<C>> run(definition: WorkflowDefinition<C>, context: C): Outcome<C>
+    fun entryCondition(context: C): Boolean = true
+
+    fun stepName(): String {
+        return javaClass.name.substringAfterLast('.')
+    }
+
+    fun apply(context: C): Outcome<C>
 
 }

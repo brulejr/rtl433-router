@@ -20,37 +20,24 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ *
  */
-package io.jrb.labs.rtl433.router.config
+package io.jrb.labs.commons.workflow.coroutine
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.workflow.simple.WorkflowServiceImpl
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import io.jrb.labs.rtl433.router.service.ingester.Source
-import io.jrb.labs.rtl433.router.service.ingester.mqtt.MqttSource
-import io.jrb.labs.rtl433.router.service.publisher.Target
-import io.jrb.labs.rtl433.router.service.publisher.mqtt.MqttTarget
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+class TestStepC : WorkflowStep<TestContext> {
 
-@Configuration
-class ApplicationConfiguration {
+    override suspend fun shouldExecute(context: TestContext) =
+        context.data.getOrDefault("enableStepC", true) as Boolean
 
-    @Bean
-    fun eventBus() = EventBus()
-
-    @Bean
-    fun sources(sourcesDatafill: SourcesDatafill): List<Source> {
-        return sourcesDatafill.mqtt.map { source -> MqttSource(source) }
+    override suspend fun execute(context: TestContext): StepOutcome<TestContext> {
+        return try {
+            context.data["StepC"] = "Processed by Step C"
+            println("Step C executed")
+            StepOutcome.Success(context)
+        } catch (e: Exception) {
+            StepOutcome.Success(context)
+        }
     }
-
-    @Bean
-    fun targets(targetsDatafill: TargetsDatafill): List<Target> {
-        return targetsDatafill.mqtt.map { target -> MqttTarget(target) }
-    }
-
-    @Bean
-    fun workflowService() = WorkflowServiceImpl()
 
 }

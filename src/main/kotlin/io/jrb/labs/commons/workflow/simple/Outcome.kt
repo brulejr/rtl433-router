@@ -21,36 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.rtl433.router.config
+package io.jrb.labs.commons.workflow.simple
 
-import io.jrb.labs.commons.eventbus.EventBus
-import io.jrb.labs.commons.workflow.simple.WorkflowServiceImpl
-import io.jrb.labs.rtl433.router.datafill.SourcesDatafill
-import io.jrb.labs.rtl433.router.datafill.TargetsDatafill
-import io.jrb.labs.rtl433.router.service.ingester.Source
-import io.jrb.labs.rtl433.router.service.ingester.mqtt.MqttSource
-import io.jrb.labs.rtl433.router.service.publisher.Target
-import io.jrb.labs.rtl433.router.service.publisher.mqtt.MqttTarget
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+sealed class Outcome<out T : Any> {
 
-@Configuration
-class ApplicationConfiguration {
+    data class Success<out T : Any>(val value: T) : Outcome<T>()
+    data class Skipped<out T : Any>(val value: T) : Outcome<T>()
+    data class Failure<out T : Any>(val value: T, val reason: FailureReason) : Outcome<T>()
+    data class Error<out T : Any>(val value: T, val message: String, val cause: Exception? = null) : Outcome<T>()
 
-    @Bean
-    fun eventBus() = EventBus()
-
-    @Bean
-    fun sources(sourcesDatafill: SourcesDatafill): List<Source> {
-        return sourcesDatafill.mqtt.map { source -> MqttSource(source) }
+    enum class FailureReason {
+        DATA_ERROR_CONTINUE,
+        DATA_ERROR_EXIT
     }
-
-    @Bean
-    fun targets(targetsDatafill: TargetsDatafill): List<Target> {
-        return targetsDatafill.mqtt.map { target -> MqttTarget(target) }
-    }
-
-    @Bean
-    fun workflowService() = WorkflowServiceImpl()
 
 }

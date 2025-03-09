@@ -20,19 +20,21 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ *
+ *
  */
-package io.jrb.labs.commons.workflow
+package io.jrb.labs.commons.workflow.coroutine
 
-sealed class Outcome<out T : Any> {
+class TestStepA : WorkflowStep<TestContext> {
 
-    data class Success<out T : Any>(val value: T) : Outcome<T>()
-    data class Skipped<out T : Any>(val value: T) : Outcome<T>()
-    data class Failure<out T : Any>(val value: T, val reason: FailureReason) : Outcome<T>()
-    data class Error<out T : Any>(val value: T, val message: String, val cause: Exception? = null) : Outcome<T>()
-
-    enum class FailureReason {
-        DATA_ERROR_CONTINUE,
-        DATA_ERROR_EXIT
+    override suspend fun execute(context: TestContext): StepOutcome<TestContext> {
+        return try {
+            context.data["StepA"] = "Processed by Step A"
+            println("Step A executed")
+            StepOutcome.Success(context)
+        } catch (e: Exception) {
+            StepOutcome.Success(context)
+        }
     }
 
 }

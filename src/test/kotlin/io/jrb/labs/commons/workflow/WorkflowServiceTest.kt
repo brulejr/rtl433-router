@@ -24,6 +24,11 @@
 package io.jrb.labs.commons.workflow
 
 import io.jrb.labs.commons.test.TestUtils
+import io.jrb.labs.commons.workflow.simple.Outcome
+import io.jrb.labs.commons.workflow.simple.WorkflowDefinition
+import io.jrb.labs.commons.workflow.simple.WorkflowService
+import io.jrb.labs.commons.workflow.simple.WorkflowServiceImpl
+import io.jrb.labs.commons.workflow.simple.WorkflowStep
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

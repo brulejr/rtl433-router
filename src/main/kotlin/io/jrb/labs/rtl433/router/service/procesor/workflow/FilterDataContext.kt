@@ -23,7 +23,7 @@
  */
 package io.jrb.labs.rtl433.router.service.procesor.workflow
 
-import io.jrb.labs.commons.workflow.WorkflowContext
+import io.jrb.labs.commons.workflow.simple.WorkflowContext
 
 data class FilterDataContext(
 
